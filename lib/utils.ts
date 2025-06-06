@@ -1,0 +1,32 @@
+export function extractReactCode(content: string): string[] {
+  const codes: string[] = [];
+
+  const r = /```(\w+)?\n/g;
+
+  while (true) {
+    const match = r.exec(content);
+    if (!match) break;
+
+    const language = match[1];
+    if (language === "jsx") {
+      const startIdx = match.index + match[0].length;
+      const endIdx = content.indexOf("```\n", startIdx);
+      const code = content
+        .substring(startIdx, endIdx > startIdx ? endIdx : content.length)
+        .trim();
+
+      codes.push(code);
+    }
+  }
+  return codes;
+}
+
+const exportDefault = "export default";
+export function guessComponentImportName(content: string): string {
+  const lines = content.split("\n");
+  const lastLine = lines[lines.length - 1].trim();
+  if (lastLine.startsWith(exportDefault)) {
+    return "./" + lastLine.replace(exportDefault, "").replace(";", "").trim();
+  }
+  return "";
+}

@@ -1,34 +1,21 @@
 "use client";
 
 import Preview from "@/components/preview";
+import { extractReactCode } from "@/lib/utils";
 import { useChat } from "@ai-sdk/react";
 import { useEffect, useState } from "react";
 
-const ReactCodeStart = "```jsx\n";
-const ReactCodeEnd = "```";
-
 export default function Chat() {
   const { messages, input, handleInputChange, handleSubmit } = useChat();
-  const [reactCode, setReactCode] = useState("");
-  const [isGeneratingCode, setIsGeneratingCode] = useState(false);
+  const [reactCodes, setReactCodes] = useState<string[]>([]);
 
   useEffect(() => {
     if (messages.length > 0) {
       const lastMessage = messages[messages.length - 1];
       const content = lastMessage.content;
-      if (content.includes(ReactCodeStart)) {
-        setIsGeneratingCode(true);
-
-        const startIdx = content.lastIndexOf(ReactCodeStart);
-        const endIdx = content.lastIndexOf(ReactCodeEnd);
-        const code = content
-          .substring(
-            startIdx + ReactCodeStart.length,
-            endIdx > startIdx ? endIdx : content.length
-          )
-          .trim();
-        setReactCode(code);
-      }
+      const codes = extractReactCode(content);
+      setReactCodes(codes);
+      console.log("Extracted React codes:", codes);
 
       if (lastMessage.role === "assistant" && lastMessage.parts.length > 0) {
         const lastPart = lastMessage.parts[lastMessage.parts.length - 1];
@@ -41,7 +28,7 @@ export default function Chat() {
   }, [messages]);
 
   return (
-    <div className="flex justify-center max-h-screen">
+    <div className="flex justify-center">
       <div className="flex flex-col w-full max-w-md mx-6 py-24 stretch overflow-y-auto mb-24">
         {messages.map((message) => (
           <div key={message.id} className="whitespace-pre-wrap">
@@ -64,10 +51,14 @@ export default function Chat() {
           />
         </form>
       </div>
-      {isGeneratingCode && (
-        <div className="overflow-y-auto">
-          <pre className="mb-6">{reactCode}</pre>
-          <Preview code={reactCode} />
+      {reactCodes.length > 0 && (
+        <div className="flex relative">
+          <div className="">
+            <pre className="bg-amber-50 mb-6">
+              {reactCodes[reactCodes.length - 1]}
+            </pre>
+            <Preview codes={reactCodes} />
+          </div>
         </div>
       )}
     </div>
