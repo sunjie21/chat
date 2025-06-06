@@ -1,5 +1,6 @@
 "use client";
 
+import Preview from "@/components/preview";
 import { useChat } from "@ai-sdk/react";
 import { useEffect, useState } from "react";
 
@@ -8,8 +9,8 @@ const ReactCodeEnd = "```";
 
 export default function Chat() {
   const { messages, input, handleInputChange, handleSubmit } = useChat();
-  const [isGeneratingCode, setIsGeneratingCode] = useState(false);
   const [reactCode, setReactCode] = useState("");
+  const [isGeneratingCode, setIsGeneratingCode] = useState(false);
 
   useEffect(() => {
     if (messages.length > 0) {
@@ -65,7 +66,8 @@ export default function Chat() {
       </div>
       {isGeneratingCode && (
         <div className="overflow-y-auto">
-          <pre>{reactCode}</pre>
+          <pre className="mb-6">{reactCode}</pre>
+          <Preview code={reactCode} />
         </div>
       )}
     </div>
