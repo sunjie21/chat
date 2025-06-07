@@ -4,10 +4,17 @@ import Message from "@/components/message";
 import Preview from "@/components/preview";
 import { extractReactCode } from "@/lib/utils";
 import { useChat } from "@ai-sdk/react";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@radix-ui/react-collapsible";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export default function Chat() {
   const { messages, input, handleInputChange, handleSubmit } = useChat();
+  const [isOpen, setIsOpen] = useState(true);
   const [reactCodes, setReactCodes] = useState<string[]>([]);
 
   useEffect(() => {
@@ -48,14 +55,21 @@ export default function Chat() {
         </form>
       </div>
       {reactCodes.length > 0 && (
-        <div className="flex flex-col flex-1">
-          {reactCodes.map((code, idx) => (
-            <pre className="bg-amber-50 mb-6" key={idx}>
-              {code}
-            </pre>
-          ))}
-          <Preview codes={reactCodes} />
-        </div>
+        <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+          <CollapsibleContent>
+            <div className="flex flex-col flex-1">
+              {reactCodes.map((code, idx) => (
+                <pre className="bg-amber-50 mb-6" key={idx}>
+                  {code}
+                </pre>
+              ))}
+              <Preview codes={reactCodes} />
+            </div>
+          </CollapsibleContent>
+          <CollapsibleTrigger asChild>
+            {isOpen ? <ChevronRight /> : <ChevronLeft />}
+          </CollapsibleTrigger>
+        </Collapsible>
       )}
     </div>
   );
