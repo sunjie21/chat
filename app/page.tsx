@@ -1,5 +1,6 @@
 "use client";
 
+import Message from "@/components/message";
 import Preview from "@/components/preview";
 import { extractReactCode } from "@/lib/utils";
 import { useChat } from "@ai-sdk/react";
@@ -28,23 +29,17 @@ export default function Chat() {
   }, [messages]);
 
   return (
-    <div className="flex justify-center">
-      <div className="flex flex-col w-full max-w-md mx-6 py-24 stretch overflow-y-auto mb-24">
+    <div className="flex justify-center items-end mb-24">
+      <div className="flex flex-col w-full max-w-3/6 mx-6 py-24 stretch overflow-y-auto">
         {messages.map((message) => (
           <div key={message.id} className="whitespace-pre-wrap">
-            {message.role === "user" ? "User: " : "AI: "}
-            {message.parts.map((part, i) => {
-              switch (part.type) {
-                case "text":
-                  return <div key={`${message.id}-${i}`}>{part.text}</div>;
-              }
-            })}
+            <Message message={message} />
           </div>
         ))}
 
         <form onSubmit={handleSubmit}>
           <input
-            className="fixed dark:bg-zinc-900 bottom-0 w-full max-w-md p-2 mb-8 border border-zinc-300 dark:border-zinc-800 rounded shadow-xl"
+            className="fixed dark:bg-zinc-900 bottom-0 w-full max-w-3/6 p-2 mb-8 border border-zinc-300 dark:border-zinc-800 rounded shadow-xl"
             value={input}
             placeholder="Say something..."
             onChange={handleInputChange}
@@ -52,13 +47,13 @@ export default function Chat() {
         </form>
       </div>
       {reactCodes.length > 0 && (
-        <div className="flex relative">
-          <div className="">
-            <pre className="bg-amber-50 mb-6">
-              {reactCodes[reactCodes.length - 1]}
+        <div className="flex flex-col flex-1">
+          {reactCodes.map((code, idx) => (
+            <pre className="bg-amber-50 mb-6" key={idx}>
+              {code}
             </pre>
-            <Preview codes={reactCodes} />
-          </div>
+          ))}
+          <Preview codes={reactCodes} />
         </div>
       )}
     </div>
