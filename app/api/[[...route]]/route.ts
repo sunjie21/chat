@@ -2,7 +2,11 @@ import { createOpenAI } from "@ai-sdk/openai";
 import { streamText, tool } from "ai";
 import { Hono } from "hono";
 import { handle } from "hono/vercel";
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
 import z from "zod";
+
+const _execFile = promisify(execFile);
 
 export const runtime = "nodejs";
 
@@ -40,6 +44,15 @@ app.post("/chat", async (c) => {
   });
 
   return result.toDataStreamResponse();
+});
+
+app.post("/run-python", async (c) => {
+  const { code } = await c.req.json();
+  const { stderr, stdout } = await _execFile("python3", ["-c", code], {
+    encoding: "utf-8",
+  });
+
+  return c.json({ stderr, stdout });
 });
 
 export const GET = handle(app);

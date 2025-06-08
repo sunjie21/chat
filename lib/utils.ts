@@ -1,3 +1,4 @@
+import { CodeBlock } from "@/components/canvas";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -5,8 +6,8 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function extractReactCode(content: string): string[] {
-  const codes: string[] = [];
+export function extractCodeBlock(content: string): CodeBlock[] {
+  const codes: CodeBlock[] = [];
 
   const r = /```(\w+)?\n/g;
 
@@ -15,14 +16,14 @@ export function extractReactCode(content: string): string[] {
     if (!match) break;
 
     const language = match[1];
-    if (language === "jsx") {
+    if (language) {
       const startIdx = match.index + match[0].length;
       const endIdx = content.indexOf("```\n", startIdx);
       const code = content
         .substring(startIdx, endIdx > startIdx ? endIdx : content.length)
         .trim();
 
-      codes.push(code);
+      codes.push({ language, code });
     }
   }
   return codes;

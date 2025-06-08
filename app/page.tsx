@@ -1,8 +1,8 @@
 "use client";
 
+import Canvas from "@/components/canvas";
 import Message from "@/components/message";
-import Preview from "@/components/preview";
-import { extractReactCode } from "@/lib/utils";
+import { CodeBlock, extractCodeBlock } from "@/lib/utils";
 import { useChat } from "@ai-sdk/react";
 import {
   Collapsible,
@@ -15,15 +15,14 @@ import { useEffect, useState } from "react";
 export default function Chat() {
   const { messages, input, handleInputChange, handleSubmit } = useChat();
   const [isOpen, setIsOpen] = useState(true);
-  const [reactCodes, setReactCodes] = useState<string[]>([]);
+  const [codeBlocks, setCodeBlocks] = useState<CodeBlock[]>([]);
 
   useEffect(() => {
     if (messages.length > 0) {
       const lastMessage = messages[messages.length - 1];
       const content = lastMessage.content;
-      const codes = extractReactCode(content);
-      setReactCodes(codes);
-      console.log("Extracted React codes:", codes);
+      const codes = extractCodeBlock(content);
+      setCodeBlocks(codes);
 
       if (lastMessage.role === "assistant" && lastMessage.parts.length > 0) {
         const lastPart = lastMessage.parts[lastMessage.parts.length - 1];
@@ -54,17 +53,10 @@ export default function Chat() {
           />
         </form>
       </div>
-      {reactCodes.length > 0 && (
+      {codeBlocks.length > 0 && (
         <Collapsible open={isOpen} onOpenChange={setIsOpen}>
           <CollapsibleContent>
-            <div className="flex flex-col flex-1">
-              {reactCodes.map((code, idx) => (
-                <pre className="bg-amber-50 mb-6" key={idx}>
-                  {code}
-                </pre>
-              ))}
-              <Preview codes={reactCodes} />
-            </div>
+            <Canvas codeBlocks={codeBlocks} />
           </CollapsibleContent>
           <CollapsibleTrigger asChild>
             {isOpen ? <ChevronRight /> : <ChevronLeft />}
