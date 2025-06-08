@@ -14,6 +14,22 @@ export default function Message({ message }: { message: UIMessage }) {
         switch (part.type) {
           case "text":
             return <Markdown key={`${message.id}-${i}`}>{part.text}</Markdown>;
+          case "tool-invocation":
+            return (
+              <div
+                key={`${message.id}-${i}`}
+                className="text-sm text-muted-foreground"
+              >
+                <span className="font-semibold">
+                  tool: {part.toolInvocation.toolName},
+                </span>
+                {/* <span>state: {part.toolInvocation.state}</span> */}
+                <span>args: {JSON.stringify(part.toolInvocation.args)}, </span>
+                <span>
+                  result: {JSON.stringify(part.toolInvocation.result)}
+                </span>
+              </div>
+            );
         }
       })}
     </div>
