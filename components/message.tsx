@@ -14,6 +14,16 @@ export default function Message({ message }: { message: UIMessage }) {
         switch (part.type) {
           case "text":
             return <Markdown key={`${message.id}-${i}`}>{part.text}</Markdown>;
+          case "reasoning":
+            return (
+              <div
+                key={`${message.id}-${i}`}
+                className="text-sm text-muted-foreground"
+              >
+                <span className="font-semibold">reasoning: </span>
+                {part.reasoning}
+              </div>
+            );
           case "tool-invocation":
             return (
               <div

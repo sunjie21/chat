@@ -1,9 +1,9 @@
-import { createOpenAI } from "@ai-sdk/openai";
 import { streamText, tool } from "ai";
 import { Hono } from "hono";
 import { handle } from "hono/vercel";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
+import { createQwen } from "qwen-ai-provider";
 import z from "zod";
 
 const _execFile = promisify(execFile);
@@ -12,14 +12,15 @@ export const runtime = "nodejs";
 
 const app = new Hono().basePath("/api");
 
-const openai = createOpenAI({
-  baseURL: process.env.OPENAI_API_BASE_URL,
+const qwen = createQwen({
+  baseURL: process.env.API_BASE_URL,
+  apiKey: process.env.API_KEY,
 });
 
 app.post("/chat", async (c) => {
   const { messages } = await c.req.json();
   const result = streamText({
-    model: openai("Qwen/Qwen3-8B"),
+    model: qwen("Qwen/Qwen3-8B"),
     tools: {
       currentTime: tool({
         description: "Get the current time",
@@ -40,10 +41,14 @@ app.post("/chat", async (c) => {
         }),
       }),
     },
+    onChunk: console.log,
+    onError: console.error,
     messages,
   });
 
-  return result.toDataStreamResponse();
+  return result.toDataStreamResponse({
+    sendReasoning: true,
+  });
 });
 
 app.post("/run-python", async (c) => {
