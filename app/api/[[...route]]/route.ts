@@ -1,9 +1,9 @@
+import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import { streamText, tool } from "ai";
 import { Hono } from "hono";
 import { handle } from "hono/vercel";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
-import { createQwen } from "qwen-ai-provider";
 import z from "zod";
 
 const _execFile = promisify(execFile);
@@ -12,8 +12,9 @@ export const runtime = "nodejs";
 
 const app = new Hono().basePath("/api");
 
-const qwen = createQwen({
-  baseURL: process.env.API_BASE_URL,
+const qwen = createOpenAICompatible({
+  name: "qwen",
+  baseURL: process.env.API_BASE_URL!,
   apiKey: process.env.API_KEY,
 });
 
